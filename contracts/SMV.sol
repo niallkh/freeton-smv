@@ -1,4 +1,5 @@
 pragma solidity >=0.5.0;
+pragma AbiHeader expire;
 
 import "./ISMV.sol";
 
@@ -10,16 +11,16 @@ contract SMV is ISMV {
 
     TvmCell proposalCode;
 
-    uint256 ownerPubkey;
+    uint256 initiator;
 
-    modifier onlyOwner(uint256 pubkey) {
-        require(msg.pubkey() == ownerPubkey, "Only owner");
+    modifier onlyInitiator(uint256 pubkey) {
+        require(msg.pubkey() == initiator, 403);
         _;
     }
 
-    constructor(uint256 _ownerPubkey) public {
+    constructor() public {
         tvm.accept();
-        ownerPubkey = _ownerPubkey;
+        initiator = tvm.pubkey();
     }
 
     function createProposal(
@@ -31,7 +32,7 @@ contract SMV is ISMV {
         uint256 votersAmount
     ) public override returns (address) {
         (bool exists, address proposalAddress) = proposalsById.fetch(proposalId);
-        require(!exists, "Proposal already exists");
+        require(!exists, 400);
 
         // TvmCell stateInit = tvm.buildStateInit(code, data);
 
@@ -46,7 +47,7 @@ contract SMV is ISMV {
 
     function getProposal(uint256 proposalId) public view override returns (address) {
         (bool exists, address proposalAddress) = proposalsById.fetch(proposalId);
-        require(exists, "Proposal doesn't exist");
+        require(exists, 404);
 
         return proposalAddress;
     }
@@ -58,7 +59,7 @@ contract SMV is ISMV {
 
     function registerVoter(uint256 pubkey) public override {
         (bool exists, uint8 value) = votersPubkeys.fetch(pubkey);
-        require(!exists, "Voter already registered");
+        require(!exists, 400);
         tvm.accept();
 
         votersPubkeys[pubkey] = 1;
@@ -75,5 +76,9 @@ contract SMV is ISMV {
     function isVoter(uint256 pubkey) public view override returns (bool) {
         (bool exists, uint8 value) = votersPubkeys.fetch(pubkey);
         return exists;
+    }
+
+    function isInitiator(uint256 pubkey) public view returns (bool) {
+        return initiator == pubkey;
     }
 }

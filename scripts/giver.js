@@ -25,20 +25,26 @@ const giverAbi = {
     'data': []
 };
 
-//Requesting 1000000000 local test nanograms from Node SE giver
-async function get_grams_from_giver(client, account) {
-    //console.log(account);
-    const {contracts, queries} = client;
+async function getGramsFromGiver(client, account, amount) {
+    const { contracts, queries } = client;
     await contracts.run({
         address: giverAddress,
         functionName: 'sendGrams',
         abi: giverAbi,
         input: {
             dest: account,
-            amount: 1000000000
+            amount: amount
         },
         keyPair: null,
     });
+
+    await queries.accounts.waitFor(
+        {
+            id: { eq: account },
+            balance: { gt: "0" }
+        },
+        'id balance'
+    );
 }
 
-module.exports = get_grams_from_giver;
+module.exports = getGramsFromGiver;

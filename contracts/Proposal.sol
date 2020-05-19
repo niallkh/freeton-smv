@@ -1,4 +1,5 @@
 pragma solidity >=0.5.0;
+pragma AbiHeader expire;
 
 import "./IProposal.sol";
 import "./ISMV.sol";
@@ -40,14 +41,17 @@ contract Proposal is IProposal {
 
     function vote(Vote _vote) public override {
         (bool exists, uint8 value) = votedPubkeys.fetch(msg.pubkey());
-        require(!exists, "Voter already passed voice");
+        require(!exists, 400);
         tvm.accept();
+        require(smvContract.isVoter(msg.pubkey()), 400);
 
         if (_vote == Vote.YES) {
             countYes++;
         } else {
             countNo++;
         }
+
+        votedPubkeys[msg.pubkey()] = 1;
     }
 
     function getStatus() public view override returns (Status) {
