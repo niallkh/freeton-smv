@@ -20,65 +20,65 @@ contract Proposal is IProposal {
     mapping(uint256 => uint8) votedPubkeys;
 
     constructor(
-        uint256 proposalId,
-        string proposalTitle,
-        string link,
-        uint256 startTime,
-        uint256 finishTime,
-        uint256 votersAmount,
-        address smvContract
-    ) {
+        uint256 _proposalId,
+        string _proposalTitle,
+        string _link,
+        uint256 _startTime,
+        uint256 _finishTime,
+        uint256 _votersAmount,
+        address _smvContract
+    ) public {
         tvm.accept();
-        this.id = proposalId;
-        this.title = proposalTitle;
-        this.link = link;
-        this.startTime = startTime;
-        this.finishTime = finishTime;
-        this.votersAmount = votersAmount;
-        this.smvContract = ISMV(smvContract);
+        id = _proposalId;
+        title = _proposalTitle;
+        link = _link;
+        startTime = _startTime;
+        finishTime = _finishTime;
+        votersAmount = _votersAmount;
+        smvContract = ISMV(_smvContract);
     }
 
-    function vote(Vote vote) public override {
+    function vote(Vote _vote) public override {
         (bool exists, uint8 value) = votedPubkeys.fetch(msg.pubkey());
         require(!exists, "Voter already passed voice");
         tvm.accept();
 
-        if (vote = Vote.YES) {
+        if (_vote == Vote.YES) {
             countYes++;
         } else {
             countNo++;
         }
     }
 
-    function getStatus() public view virtual returns (ProposalStatus) {
-        return ProposalStatus.InProgress;
+    function getStatus() public view override returns (Status) {
+        return Status.IN_PROGRESS;
     }
 
-    function getProposalTitle() public view virtual returns (string) {
+    function getProposalTitle() public view override returns (string) {
         return title;
     }
 
-    function getLink() public view virtual returns (string) {
+    function getLink() public view override returns (string) {
         return link;
     }
 
-    function getStartTime() public view virtual returns (uint256) {
+    function getStartTime() public view override returns (uint256) {
         return startTime;
     }
 
-    function getFinishTime() public view virtual returns (uint256) {
+    function getFinishTime() public view override returns (uint256) {
         return finishTime;
     }
 
-    function getVotersAmount() public view virtual returns (uint256) {
+    function getVotersAmount() public view override returns (uint256) {
         return votersAmount;
     }
 
-    function getCountYesVotes() public view virtual returns (uint256) {
+    function getCountYesVotes() public view override returns (uint256) {
         return countYes;
     }
 
-    function getCountNoVotes() public view virtual returns (uint256) {
+    function getCountNoVotes() public view override returns (uint256) {
         return countNo;
     }
 }

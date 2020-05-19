@@ -17,9 +17,9 @@ contract SMV is ISMV {
         _;
     }
 
-    constructor(uint256 ownerPubkey) {
+    constructor(uint256 _ownerPubkey) public {
         tvm.accept();
-        this.ownerPubkey = ownerPubkey;
+        ownerPubkey = _ownerPubkey;
     }
 
     function createProposal(
@@ -57,8 +57,9 @@ contract SMV is ISMV {
     }
 
     function registerVoter(uint256 pubkey) public override {
-        require(!votersPubkeys[pubkey], "Voter already registered");
-        tmv.accept();
+        (bool exists, uint8 value) = votersPubkeys.fetch(pubkey);
+        require(!exists, "Voter already registered");
+        tvm.accept();
 
         votersPubkeys[pubkey] = 1;
     }
@@ -72,7 +73,7 @@ contract SMV is ISMV {
     }
 
     function isVoter(uint256 pubkey) public view override returns (bool) {
-        (bool exists, uint8 value) = votersPubkeys.fetch(proposalId);
+        (bool exists, uint8 value) = votersPubkeys.fetch(pubkey);
         return exists;
     }
 }
