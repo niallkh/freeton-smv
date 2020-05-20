@@ -1,23 +1,21 @@
 pragma solidity >=0.5.0;
 
-abstract contract ISMV {
+interface ISMV {
 
     function createProposal(
         uint256 proposalId,
-        string proposalTitle,
-        string link,
         uint256 startTime,
         uint256 finishTime,
-        uint256 votersAmount
-    ) public virtual returns (address);
+        uint256 votersAmount,
+        uint128 amountGrams,
+        uint256 pubkey
+    ) external returns (address);
 
-    function registerVoter(uint256 pubkey) public virtual;
+    function registerVoter(uint256 pubkey) external;
 
-    function registerVoters(uint256[] pubkeys) public virtual;
+    function isVoter(uint256 pubkey) external view returns (bool);
 
-    function isVoter(uint256 pubkey) public view virtual returns (bool);
+    function getProposal(uint256 proposalId) external view returns (address);
 
-    function getProposal(uint256 proposalId) public view virtual returns (address);
-
-    function setProposalCode(TvmCell code) public virtual;
+    function setProposalContract(TvmCell contr) external;
 }

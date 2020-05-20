@@ -9,7 +9,7 @@ contract SMV is ISMV {
 
     mapping(uint256 => address) proposalsById;
 
-    TvmCell proposalCode;
+    TvmCell proposalContract;
 
     uint256 initiator;
 
@@ -25,39 +25,49 @@ contract SMV is ISMV {
 
     function createProposal(
         uint256 proposalId,
-        string proposalTitle,
-        string link,
         uint256 startTime,
         uint256 finishTime,
-        uint256 votersAmount
-    ) public override returns (address) {
-        (bool exists, address proposalAddress) = proposalsById.fetch(proposalId);
+        uint256 votersAmount,
+        uint128 amountGrams,
+        uint256 pubkey
+    ) external override returns (address) {
+        (bool exists, address _) = proposalsById.fetch(proposalId);
         require(!exists, 400);
+        tvm.accept();
 
-        // TvmCell stateInit = tvm.buildStateInit(code, data);
+        TvmCell proposalContractWithPubkey = tvm.insertPubkey(
+            proposalContract,
+            pubkey
+        );
 
-        // // tvm.hash() - Runtime function that computes the representation hash ot TvmCell.
-        // address addr = address(tvm.hash(stateInit));
+        address proposalAddress = address(tvm.hash(proposalContractWithPubkey));
 
-        // // Functions to deploy a contract and call it's constructor.
-        // tvm.deployAndCallConstructor(stateInit, addr, initial_balance, constructor_id, constructor_param0, constructor_param1);
+        uint32 constructorId = uint32(0x10000000);
 
-        return address(0);
-    }
+        tvm.deployAndCallConstructor(
+            proposalContractWithPubkey,
+            proposalAddress,
+            amountGrams,
+            constructorId,
+            proposalId,
+            startTime,
+            finishTime,
+            votersAmount,
+            address(this)
+        );
 
-    function getProposal(uint256 proposalId) public view override returns (address) {
-        (bool exists, address proposalAddress) = proposalsById.fetch(proposalId);
-        require(exists, 404);
+        proposalsById[proposalId] = proposalAddress;
 
         return proposalAddress;
     }
 
-    function setProposalCode(TvmCell code) public override {
+
+    function setProposalContract(TvmCell contr) external override {
         tvm.accept();
-        proposalCode = code;
+        proposalContract = contr;
     }
 
-    function registerVoter(uint256 pubkey) public override {
+    function registerVoter(uint256 pubkey) external override {
         (bool exists, uint8 value) = votersPubkeys.fetch(pubkey);
         require(!exists, 400);
         tvm.accept();
@@ -65,20 +75,19 @@ contract SMV is ISMV {
         votersPubkeys[pubkey] = 1;
     }
 
-    function registerVoters(uint256[] pubkeys) public override {
-        uint256 arrayLength = pubkeys.length;
+    function getProposal(uint256 proposalId) external view override returns (address) {
+        (bool exists, address proposalAddress) = proposalsById.fetch(proposalId);
+        require(exists, 404);
 
-        for (uint i = 0; i < arrayLength; i++) {
-            registerVoter(pubkeys[i]);
-        }
+        return proposalAddress;
     }
 
-    function isVoter(uint256 pubkey) public view override returns (bool) {
+    function isVoter(uint256 pubkey) external view override returns (bool) {
         (bool exists, uint8 value) = votersPubkeys.fetch(pubkey);
         return exists;
     }
 
-    function isInitiator(uint256 pubkey) public view returns (bool) {
+    function isInitiator(uint256 pubkey) external view returns (bool) {
         return initiator == pubkey;
     }
 }

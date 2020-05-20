@@ -1,24 +1,26 @@
 const expect = require('chai').expect
-const getGramsFromGiver = require('../scripts/giver.js');
+const getGramsFromGiver = require('./giver.js');
 const SMVContract = require('../contracts/SMVContract.js')
 const { TONClient } = require('ton-client-node-js');
 
-describe('SMV contract', () => {
+describe('SMV contract', function () {
+    this.timeout(5000);
 
     let tonClient
 
-    it("Create ton client", async () => {
+    before(async () => {
         tonClient = await TONClient.create({
             servers: ['http://0.0.0.0']
         });
+
+        keys = await tonClient.crypto.ed25519Keypair();
     })
 
     let keys
     let address
 
-    it('Send grams to future address', async () => {
+    it('Send grams to future address from giver', async () => {
         const expectedGrams = 1000000000;
-        keys = await tonClient.crypto.ed25519Keypair();
 
         const futureAddress = (await tonClient.contracts.createDeployMessage({
             package: SMVContract.package,
@@ -41,8 +43,6 @@ describe('SMV contract', () => {
         contract = new SMVContract(tonClient, address, keys);
 
         await contract.deploy();
-
-        console.log(`0x${keys.public}`)
 
         const isInitiator = (await contract.isInitiatorLocal({
             pubkey: `0x${keys.public}`
