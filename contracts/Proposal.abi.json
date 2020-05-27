@@ -1,0 +1,55 @@
+{
+	"ABI version": 2,
+	"header": ["time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"id": "0x10000000",
+			"inputs": [
+				{"name":"_initiatorPubkey","type":"uint256"},
+				{"name":"_voterWalletCode","type":"cell"},
+				{"name":"_proposalId","type":"uint256"},
+				{"name":"_startTime","type":"uint256"},
+				{"name":"_finishTime","type":"uint256"},
+				{"name":"_votersAmount","type":"uint256"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "vote",
+			"inputs": [
+				{"name":"_vote","type":"uint8"},
+				{"name":"signature","type":"uint256"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "finish",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "getProposalId",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"uint256"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+		{
+			"name": "ProposalResult",
+			"inputs": [
+			],
+			"outputs": [
+			]
+		}
+	]
+}

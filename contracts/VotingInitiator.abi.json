@@ -1,0 +1,38 @@
+{
+	"ABI version": 2,
+	"header": ["time", "expire"],
+	"functions": [
+		{
+			"name": "constructor",
+			"inputs": [
+				{"name":"_proposalContract","type":"cell"}
+			],
+			"outputs": [
+			]
+		},
+		{
+			"name": "createProposal",
+			"inputs": [
+				{"name":"proposalId","type":"uint256"},
+				{"name":"startTime","type":"uint256"},
+				{"name":"finishTime","type":"uint256"},
+				{"name":"votersAmount","type":"uint256"}
+			],
+			"outputs": [
+				{"name":"value0","type":"address"}
+			]
+		},
+		{
+			"name": "getProposalContract",
+			"inputs": [
+			],
+			"outputs": [
+				{"name":"value0","type":"cell"}
+			]
+		}
+	],
+	"data": [
+	],
+	"events": [
+	]
+}

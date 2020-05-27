@@ -1,0 +1,11 @@
+[package]
+name = "freeton-smv"
+version = "0.1.0"
+authors = ["Nail Khafizov <854297992c@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+ton-client-rs = { git = "https://github.com/tonlabs/ton-client-rs", version = "0.23.0" }
+serde_json = "1.0.53"
