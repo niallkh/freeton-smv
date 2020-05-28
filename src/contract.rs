@@ -1,3 +1,4 @@
+use serde_json::Value;
 use std::path::Path;
 use ton_client_rs::Ed25519KeyPair;
 use ton_client_rs::RunParameters;
@@ -86,8 +87,8 @@ impl<'a> SmartContract<'a> {
         fn_name: &str,
         params: Option<RunParameters>,
         header: Option<RunParameters>,
-    ) {
-        self.ton_client.contracts.run(
+    ) -> Value {
+        let ton_result = self.ton_client.contracts.run(
             self.address.as_ref()
                 .expect("Couldn't send grams, provide giver address"),
             &self.abi,
@@ -95,7 +96,11 @@ impl<'a> SmartContract<'a> {
             header,
             params.unwrap_or_else(|| "{}".into()),
             self.keys
-        ).expect("Couldn't send grams from giver");
+        ).expect("Couldn't run contract");
+
+        println!("{}: {}", fn_name, ton_result.to_string());
+
+        ton_result
     }
 
     pub fn run_local(
@@ -103,8 +108,8 @@ impl<'a> SmartContract<'a> {
         fn_name: &str,
         params: Option<RunParameters>,
         header: Option<RunParameters>,
-    ) {
-        self.ton_client
+    ) -> Value {
+        let ton_result = self.ton_client
             .contracts
             .run_local(
                 self.address
@@ -117,6 +122,10 @@ impl<'a> SmartContract<'a> {
                 params.unwrap_or_else(|| "{}".into()),
                 self.keys,
             )
-            .expect("Couldn't send grams from giver");
+            .expect("Couldn't run contract");
+
+        println!("{}: {}", fn_name, ton_result.to_string());
+
+        ton_result
     }
 }

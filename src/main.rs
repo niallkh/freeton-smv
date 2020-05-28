@@ -1,6 +1,6 @@
-mod giver;
-mod contract;
-mod voting_initiator;
+pub mod giver;
+pub mod contract;
+pub mod voting_initiator;
 
 use std::path::Path;
 use ton_client_rs::TonClient;
@@ -31,7 +31,7 @@ fn main() {
         &keys
     );
 
-    let mut proposal_contract = SmartContract::new(
+    let proposal_contract = SmartContract::new(
         &ton_client,
         &contracts_folder,
         "Proposal",
@@ -39,17 +39,23 @@ fn main() {
         None
     );
 
-
     voting_initiator_contract.calculate_address();
 
     giver.send_grams(
-        voting_initiator_contract.smart_contract.address.as_ref().unwrap()
+        voting_initiator_contract.smart_contract.address.as_ref()
+            .expect("Couldn't send grams from giver")
     );
+
+    let code_path = contracts_folder.join("VotingWallet").with_extension("tvc");
+    let code = std::fs::read(code_path).expect("Couldn't read wallet code");
 
     voting_initiator_contract.deploy(
         proposal_contract.code.as_ref()
-            .expect("Couldn't deploy need proposal contract code")
+            .expect("Couldn't deploy need proposal contract code"),
+        &code
     );
+
+    let wallet_code = voting_initiator_contract.get_wallet_contract();
 
     println!("Finish");
 }

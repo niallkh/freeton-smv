@@ -25,9 +25,12 @@ impl<'a> VotingInitiatorContract<'a> {
         }
     }
 
-    pub fn deploy(&mut self, proposal_contract: &[u8]) {
+    pub fn deploy(&mut self, proposal_contract: &[u8], wallet_contract: &[u8]) {
         self.smart_contract.deploy(Some(
-            json!({ "_proposalContract": hex_encode(proposal_contract) })
+            json!({
+                "_proposalContract": base64::encode(proposal_contract),
+                "_walletContract": base64::encode(wallet_contract)
+            })
                 .to_string()
                 .into(),
         ));
@@ -35,6 +38,21 @@ impl<'a> VotingInitiatorContract<'a> {
 
     pub fn calculate_address(&mut self) {
         self.smart_contract.calculate_address();
+    }
+
+    pub fn get_wallet_contract(&self) -> Vec<u8> {
+        let result = self.smart_contract.run_local(
+            "getWalletContract",
+            None,
+            None
+        );
+
+        let base64_code: &str = &result
+            .get("output").expect("Couldn't get output from result")
+            .get("value0").expect("Couldn't get value0 from result")
+            .as_str().expect("Couldn't get as string");
+
+        base64::decode(base64_code).expect("Couldn't decode base64 code")
     }
 }
 

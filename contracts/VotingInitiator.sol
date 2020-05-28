@@ -10,7 +10,7 @@ interface IVotingInitiator {
         uint256 votersAmount
     ) external returns (address);
 
-    function getProposalContract() external view returns (TvmCell);
+    function getWalletContract() external view returns (TvmCell);
 }
 
 contract VotingInitiator is IVotingInitiator {
@@ -18,16 +18,18 @@ contract VotingInitiator is IVotingInitiator {
     mapping(uint256 => address) proposals;
 
     TvmCell proposalContract;
+    TvmCell walletContract;
 
     modifier onlyOwner() {
         require(tvm.pubkey() == msg.pubkey(), 403);
         _;
     }
 
-    constructor(TvmCell _proposalContract) public {
+    constructor(TvmCell _proposalContract, TvmCell _walletContract) public {
         require(tvm.pubkey() != 0, 400);
         tvm.accept();
         proposalContract = _proposalContract;
+        walletContract = _walletContract;
     }
 
     function createProposal(
@@ -66,7 +68,7 @@ contract VotingInitiator is IVotingInitiator {
         return proposalAddress;
     }
 
-    function getProposalContract() external view override returns (TvmCell) {
-        return proposalContract;
+    function getWalletContract() external view override returns (TvmCell) {
+        return walletContract;
     }
 }

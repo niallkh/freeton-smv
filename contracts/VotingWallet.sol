@@ -14,12 +14,12 @@ interface IVotingWallet {
     ) external;
 }
 
-contract VotingWallet {
+contract VotingWallet is IVotingWallet {
 
-    uint512 signature;
+    uint256 signature;
 
-    constructor(uint512 _signature) {
-        require(tmv.pubkey() != 0, 400);
+    constructor(uint256 _signature) public {
+        require(tvm.pubkey() != 0, 400);
         signature = _signature;
     }
 
@@ -30,7 +30,7 @@ contract VotingWallet {
         // TODO implement
     }
 
-    function onBounce(TvmSlice slice) external override {
+    onBounce(TvmSlice slice) external {
         // TODO implement
     }
 }
